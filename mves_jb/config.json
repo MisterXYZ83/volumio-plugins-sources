@@ -1,0 +1,38 @@
+{
+	"pr": {
+		"value": "10",
+		"type": "string"
+	},
+	"pg": {
+		"value": "10",
+		"type": "string"
+	},
+	"pb": {
+		"value": "10",
+		"type": "string"
+	},
+	"sbr": {
+		"value": "10",
+		"type": "string"
+	},
+	"sbg": {
+		"value": "10",
+		"type": "string"
+	},
+	"sbb": {
+		"value": "10",
+		"type": "string"
+	},
+	"sbkr": {
+		"value": "10",
+		"type": "string"
+	},
+	"sbkg": {
+		"value": "10",
+		"type": "string"
+	},
+	"sbkb": {
+		"value": "10",
+		"type": "string"
+	}
+}

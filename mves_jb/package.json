@@ -1,0 +1,40 @@
+{
+	"name": "mves_jb",
+	"version": "1.0.0",
+	"description": "mves_jb",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "MVES",
+	"license": "ISC",
+	"repository": "https://github.com/yourname/yourrepo",
+	"volumio_info": {
+		"prettyName": "mves_jb",
+		"icon": "fa-lightbulb-o",
+		"plugin_type": "audio_interface",
+		"architectures": [
+			"amd64",
+			"armhf",
+			"i386"
+		],
+		"os": [
+			"buster"
+		],
+		"details": "Lorem ipsum",
+		"changelog": "Lorem ipsum",
+		"has_alsa_contribution": true
+	},
+	"engines": {
+		"node": ">=14.15.4 <15.0.0",
+		"volumio": ">=3.251.0 <4.0.0"
+	},
+	"dependencies": {
+		"chokidar": "^3.5.3",
+		"fs-extra": "^0.28.0",
+		"kew": "^0.7.0",
+		"serialport": "^10.4.0",
+		"socket.io-client": "^2.4.0",
+		"v-conf": "^1.4.0"
+	}
+}

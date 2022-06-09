@@ -1,0 +1,103 @@
+{
+  "page": {
+    "label": "MVES JukeBox"
+  },
+  "sections": [
+   {
+      "id": "panel_color",
+      "element": "section",
+      "label": "Panello LED",
+      "icon": "fa-plug",
+      "onSave": {"type":"controller", "endpoint":"audio_interface/mves_jb", "method":"savePanelColor"},
+      "saveButton": {
+        "label": "Imposta Colori",
+        "data": [
+          "pr",
+          "pg",
+          "pb",
+	  "sbr",
+          "sbg",
+          "sbb",
+	  "sbkr",
+          "sbkg",
+          "sbkb"
+        ]
+      },
+      "content": [
+        {
+          "id": "pr",
+          "type":"text",
+          "element": "input",
+          "doc": "Pannello RED",
+          "label": "Pannello R",
+          "value": "10"
+        },
+        {
+          "id": "pg",
+          "type":"text",
+          "element": "input",
+          "doc": "Pannello GREEN",
+          "label": "Pannello G",
+          "value": "10"
+        },
+        {
+          "id":"pb",
+          "type": "text",
+		  "element": "input",
+          "doc": "Pannello BLUE",
+          "label": "Pannello B",
+		  "value": "10"
+        },
+		{
+          "id": "sbr",
+          "type":"text",
+          "element": "input",
+          "doc": "Spettro Barra RED",
+          "label": "Barra R",
+          "value": "10"
+        },
+        {
+          "id": "sbg",
+          "type":"text",
+          "element": "input",
+          "doc": "Spettro Barra GREEN",
+          "label": "Barra G",
+          "value": "10"
+        },
+        {
+          "id":"sbb",
+          "type": "text",
+		  "element": "input",
+          "doc": "Spettro Barra BLUE",
+          "label": "Barra B",
+		  "value": "10"
+        },
+	{
+          "id": "sbkr",
+          "type":"text",
+          "element": "input",
+          "doc": "Spettro Sfondo RED",
+          "label": "Sfondo R",
+          "value": "10"
+        },
+        {
+          "id": "sbkg",
+          "type":"text",
+          "element": "input",
+          "doc": "Spettro Sfondo GREEN",
+          "label": "Sfondo G",
+          "value": "10"
+        },
+        {
+          "id":"sbkb",
+          "type": "text",
+		  "element": "input",
+          "doc": "Spettro Sfondo BLUE",
+          "label": "Sfondo B",
+		  "value": "10"
+        }
+      ]
+    }
+  ]
+}
+
