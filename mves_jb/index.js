@@ -523,7 +523,7 @@ mvesJb.prototype.startSpectrumAnalyzer = function(){
 	var errorMessage = "";
 
 	//comando da lanciare
-	var command = "/home/volumio/develop/cava/cava";
+	var command = "cava";
 
 	//avvio 
 	self.cavaInstance = exec(command, function(error, stdout, stderr){
@@ -667,6 +667,25 @@ mvesJb.prototype.interfaceMessage = function (data)
 				self.info('Avvio riproduzione!');
 				setTimeout(() => {self.ioSocket.emit('play', {'value': qpos});}, 2000);
 			}
+		}
+		catch(errmsg)
+		{
+			self.info(errmsg);
+		}
+	}
+	else if ( request['opcode'] === 'jump' )
+	{
+		try
+		{
+			let dir = parseInt(request['dir']);
+			
+			//salto prev o next
+			self.info(`Richiesta jump ${dir}`);
+			
+			if ( dir > 0 )
+				self.ioSocket.emit('next');
+			else if ( dir < 0 )
+				self.ioSocket.emit('prev');
 		}
 		catch(errmsg)
 		{
