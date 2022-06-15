@@ -7,7 +7,7 @@
 mode = waves
 
 # Accepts only non-negative values.
-framerate = 8
+framerate = 30
 
 # 'autosens' will attempt to decrease sensitivity if the bars peak. 1 = on, 0 = off
 # new as of 0.6.0 autosens of low values (dynamic range)
@@ -168,7 +168,7 @@ waves = 0
 
 # Set gravity percentage for "drop off". Higher values means bars will drop faster.
 # Accepts only non-negative values. 50 means half gravity, 200 means double. Set to 0 to disable "drop off".
-gravity = 50
+gravity = 150
 
 
 # In bar height, bars that would have been lower that this will not be drawn.

@@ -34,5 +34,33 @@
 	"sbkb": {
 		"value": "10",
 		"type": "string"
+	},
+	"car": {
+		"value": "10",
+		"type": "string"
+	},
+	"cag": {
+		"value": "10",
+		"type": "string"
+	},
+	"cab": {
+		"value": "10",
+		"type": "string"
+	},
+	"cbr": {
+		"value": "10",
+		"type": "string"
+	},
+	"cbg": {
+		"value": "10",
+		"type": "string"
+	},
+	"cbb": {
+		"value": "10",
+		"type": "string"
+	},
+	"speed": {
+		"value": "10",
+		"type": "string"
 	}
 }

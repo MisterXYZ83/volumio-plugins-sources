@@ -55,6 +55,9 @@ mvesJb.prototype.onStart = function() {
 	self.parser.on('data', (uart_msg) => {self.interfaceMessage(uart_msg);});
 	self.updateTimer = null;
 	self.currentStatus = null;
+	self.currentQueue = null;
+	self.currentUri = null;
+	self.playPending = false;
 	
 	//album delle tracce avviabili da tastiera
 	self.discs = {};
@@ -121,18 +124,46 @@ mvesJb.prototype.onStatusUpdate = function(data)
 	self.currentStatus = data;
 	
 	let uart_status = {};
+	let queue_item = 0;
 	
 	uart_status['opcode'] = 'jb_status';
 	uart_status['status'] = 1;
 	
 	if ( data['status'] === 'play' ) 
 	{
-		if ( self.updateTimer == null ) self.updateTimer = setInterval(() => {self.ioSocket.emit('getState');}, 1000);
+		if ( self.updateTimer == null ) self.updateTimer = setInterval(() => {
+			
+			if ( (self.ioSocket != null) && self.ioSocket.connected ) self.ioSocket.emit('getState');
+			
+		}, 1000);
+		
 		uart_status['status'] = 2;
+		
+		self.playPending = false;
+		
+		//cancello il corrente
+		if ( (self.currentUri != null) && (data['uri'] != self.currentUri) )
+		{
+			//cerco l'indice sulla coda
+			let index = self.currentQueue.findIndex( (item) => {
+				return item['uri'] == self.currentUri;
+			});
+			
+			if ( index >= 0 )
+			{
+				self.info("Rimuovo indice " + index);
+				
+				if ( (self.ioSocket != null) && self.ioSocket.connected ) self.ioSocket.emit('removeFromQueue', {'value': index});
+			}
+			
+			//self.currentUri = data['uri'];
+		}
+		
+		self.currentUri = data['uri'];
 	}
 	else
 	{
-		if ( data['status'] === 'stop' ) uart_status['status'] = 1;
+		if ( data['status'] === 'stop' ) uart_status['status'] = 1;		
 		else if ( data['status'] === 'pause' ) uart_status['status'] = 3;
 		
 		clearInterval(self.updateTimer);
@@ -166,10 +197,11 @@ mvesJb.prototype.onStatusUpdate = function(data)
 mvesJb.prototype.onQueueUpdate = function(data)
 {
 	var self = this;
-	
 	self.info(JSON.stringify(data));
 	
-	let num_items = data.length;
+	self.currentQueue = data;
+	
+	/*let num_items = data.length;
 	
 	let uart_status = {};
 	
@@ -185,7 +217,7 @@ mvesJb.prototype.onQueueUpdate = function(data)
 	catch(uart_err)
 	{
 		self.info(uart_err);
-	}
+	}*/
 }
 
 mvesJb.prototype.onStop = function() {
@@ -233,6 +265,13 @@ mvesJb.prototype.getUIConfig = function() {
 			let sbkr = self.config.get('sbkr');
 			let sbkg = self.config.get('sbkg');
 			let sbkb = self.config.get('sbkb');
+			let car = self.config.get('car');
+			let cag = self.config.get('cag');
+			let cab = self.config.get('cab');
+			let cbr = self.config.get('cbr');
+			let cbg = self.config.get('cbg');
+			let cbb = self.config.get('cbb');
+			let speed = self.config.get('speed');
 			
 			//self.info('GET UIConfig ' + uiconf.sections[0].content);
 			self.info('GET PR ' + pr);
@@ -247,6 +286,16 @@ mvesJb.prototype.getUIConfig = function() {
 			self.info('GET SBKG ' + sbkg);
 			self.info('GET SBKB ' + sbkb);
 			
+			self.info('GET CAR ' + car);
+			self.info('GET CAG ' + cag);
+			self.info('GET CAB ' + cab);
+			
+			self.info('GET CBR ' + cbr);
+			self.info('GET CBG ' + cbg);
+			self.info('GET CBB ' + cbb);
+			
+			self.info('GET SPEED ' + speed);
+			
 			let pr_item = uiconf.sections[0].content.findById('pr');
 			let pg_item = uiconf.sections[0].content.findById('pb');
 			let pb_item = uiconf.sections[0].content.findById('pg');
@@ -259,6 +308,16 @@ mvesJb.prototype.getUIConfig = function() {
 			let sbkg_item = uiconf.sections[0].content.findById('sbkg');
 			let sbkb_item = uiconf.sections[0].content.findById('sbkb');
 			
+			let car_item = uiconf.sections[0].content.findById('car');
+			let cag_item = uiconf.sections[0].content.findById('cag');
+			let cab_item = uiconf.sections[0].content.findById('cab');
+			
+			let cbr_item = uiconf.sections[0].content.findById('cbr');
+			let cbg_item = uiconf.sections[0].content.findById('cbg');
+			let cbb_item = uiconf.sections[0].content.findById('cbb');
+			
+			let speed_item = uiconf.sections[0].content.findById('speed');
+			
 			if ( pr_item ) pr_item.value = pr;
 			if ( pg_item ) pg_item.value = pg;
 			if ( pb_item ) pb_item.value = pb;
@@ -270,6 +329,16 @@ mvesJb.prototype.getUIConfig = function() {
 			if ( sbkr_item ) sbkr_item.value = sbkr;
 			if ( sbkg_item ) sbkg_item.value = sbkg;
 			if ( sbkb_item ) sbkb_item.value = sbkb;
+			
+			if ( car_item ) car_item.value = car;
+			if ( cag_item ) cag_item.value = cag;
+			if ( cab_item ) cab_item.value = cab;
+			
+			if ( cbr_item ) cbr_item.value = cbr;
+			if ( cbg_item ) cbg_item.value = cbg;
+			if ( cbb_item ) cbb_item.value = cbb;
+			
+			if ( speed_item ) speed_item.value = speed;
 			
 			let color_config = {};
 			
@@ -284,6 +353,16 @@ mvesJb.prototype.getUIConfig = function() {
 			color_config['sbkr'] = parseInt(sbkr);
 			color_config['sbkg'] = parseInt(sbkg);
 			color_config['sbkb'] = parseInt(sbkb);
+			
+			color_config['car'] = parseInt(car);
+			color_config['cag'] = parseInt(cag);
+			color_config['cab'] = parseInt(cab);
+			
+			color_config['cbr'] = parseInt(cbr);
+			color_config['cbg'] = parseInt(cbg);
+			color_config['cbb'] = parseInt(cbb);
+			
+			color_config['speed'] = parseInt(speed);
 			
 			self.sendColorConfiguration(color_config);
 			
@@ -317,12 +396,12 @@ mvesJb.prototype.setConf = function(varName, varValue) {
 };
 
 
-mvesJb.prototype.savePanelColor = function(data){
-	
+mvesJb.prototype.savePanelColor = function(data)
+{
 	const self = this;
 	
 	self.info('Richiesta salvataggio!');
-	
+
 	let tmp = {};
 	
 	tmp['pr'] = parseInt(data['pr']);
@@ -337,6 +416,16 @@ mvesJb.prototype.savePanelColor = function(data){
 	tmp['sbkb'] = parseInt(data['sbkb']);
 	tmp['sbkg'] = parseInt(data['sbkg']);
 	
+	tmp['car'] = parseInt(data['car']);
+	tmp['cag'] = parseInt(data['cag']);
+	tmp['cab'] = parseInt(data['cab']);
+	
+	tmp['cbr'] = parseInt(data['cbr']);
+	tmp['cbg'] = parseInt(data['cbg']);
+	tmp['cbb'] = parseInt(data['cbb']);
+	
+	tmp['speed'] = parseInt(data['speed']);
+	
 	self.config.set('pr', tmp['pr']);
 	self.config.set('pg', tmp['pg']);
 	self.config.set('pb', tmp['pb']);
@@ -348,6 +437,16 @@ mvesJb.prototype.savePanelColor = function(data){
 	self.config.set('sbkr', tmp['sbkr']);
 	self.config.set('sbkb', tmp['sbkb']);
 	self.config.set('sbkg', tmp['sbkg']);
+	
+	self.config.set('car', tmp['car']);
+	self.config.set('cag', tmp['cag']);
+	self.config.set('cab', tmp['cab']);
+	
+	self.config.set('cbr', tmp['cbr']);
+	self.config.set('cbg', tmp['cbg']);
+	self.config.set('cbb', tmp['cbb']);
+	
+	self.config.set('speed', tmp['speed']);
 	
 	self.sendColorConfiguration(tmp);
 };
@@ -640,7 +739,8 @@ mvesJb.prototype.interfaceMessage = function (data)
 		self.info(`Richiesta volume ${new_vol}`);
 
 		//modifico il volume
-		self.ioSocket.emit('volume', new_vol);
+		if ( (self.ioSocket != null) && self.ioSocket.connected ) 
+			self.ioSocket.emit('volume', new_vol);
 	}
 	else if ( request['opcode'] === 'addQueue' )
 	{
@@ -649,23 +749,38 @@ mvesJb.prototype.interfaceMessage = function (data)
 			let disc = request['disc'];
 			let track = request['track'];
 			let force_play = request['force'];
-			let qpos = request['qpos'];
-			
-			if ( qpos === undefined ) qpos = 0;
 			
 			let base_path = MVES_LIBRARY_PATH;
 			let track_filename = path.basename(self.discs[disc.toString()]['tracks'][track-1]);
 			let track_vpath = path.join(base_path, disc.toString(), track_filename);
-
+			
 			//avvio o aggiungo in coda la traccia richiesta
 			self.info(`Richiesta riproduzione ${disc} - ${track}: ${track_vpath}`);
 
-			self.ioSocket.emit('addToQueue', {'uri': `${track_vpath}`});
+			if ( (self.ioSocket != null) && self.ioSocket.connected ) 
+				self.ioSocket.emit('addToQueue', {'uri': track_vpath});
 
 			if ( (self.currentStatus == null) || (self.currentStatus['status'] != 'play') || (force_play == 1) )
-			{
-				self.info('Avvio riproduzione!');
-				setTimeout(() => {self.ioSocket.emit('play', {'value': qpos});}, 2000);
+			{	
+				if ( !self.playPending )
+				{
+					self.playPending = true;
+					
+					let qpos = 0;
+							
+					//salvo l'uri corrente
+					//self.currentUri = track_vpath;
+					
+					if ( (self.currentQueue != null) && (self.currentQueue.length > 0) ) qpos = self.currentQueue.length-1;
+						
+					setTimeout(() => {
+						
+						self.info('Avvio riproduzione!');
+					
+						self.ioSocket.emit('play', {'value': qpos});
+							
+					}, 2000);
+				}
 			}
 		}
 		catch(errmsg)
@@ -683,9 +798,9 @@ mvesJb.prototype.interfaceMessage = function (data)
 			self.info(`Richiesta jump ${dir}`);
 			
 			if ( dir > 0 )
-				self.ioSocket.emit('next');
+				if ( (self.ioSocket != null) && self.ioSocket.connected )  self.ioSocket.emit('next');
 			else if ( dir < 0 )
-				self.ioSocket.emit('prev');
+				if ( (self.ioSocket != null) && self.ioSocket.connected )  self.ioSocket.emit('prev');
 		}
 		catch(errmsg)
 		{
